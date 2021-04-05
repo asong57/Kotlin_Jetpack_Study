@@ -2,6 +2,7 @@ package com.example.room_exam;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.room.Room;
 
 import android.os.Bundle;
@@ -23,12 +24,10 @@ public class MainActivity extends AppCompatActivity {
         mTodoEditText = findViewById(R.id.todo_edit);
         mResultTextView = findViewById(R.id.result_text);
 
-        AppDatabase db = Room.databaseBuilder(this, AppDatabase.class, "todo-db").allowMainThreadQueries().build();
-        //디비 객체 생성
-        //allowMainThreadQueries()는 백그라운드 뿐만아니라 메인스레드에서도 디비가 동작하도록 한다.
+        MainViewModel viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MainViewModel.class);
 
         //UI 갱신
-        db.todoDao().getAll().observe(this, todos -> {
+        viewModel.getAll().observe(this, todos -> {
             mResultTextView.setText(todos.toString());
         });
         //db에서 그때그때 확인하는 것이 아니라 LiveData를 활용하여 todos인자로 확인
@@ -37,9 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         //버튼 클릭시 DB에 insert
         findViewById(R.id.add_button).setOnClickListener(v -> {
-            db.todoDao().insert(new Todo(mTodoEditText.getText().toString()));
+            viewModel.insert(new Todo(mTodoEditText.getText().toString()));
         });
-
-
     }
 }
